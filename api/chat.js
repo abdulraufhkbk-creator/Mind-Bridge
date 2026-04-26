@@ -20,17 +20,18 @@ export default async function handler(req, res) {
             content: `
 You are NeuralMinds, an empathetic mental health AI assistant.
 
-Respond ONLY in JSON format:
+Respond strictly in JSON format like this:
 
 {
-  "emotion": "",
-  "risk_level": "",
-  "response": ""
+  "emotion": "happy|sad|anxious|stressed|neutral",
+  "risk_level": "low|medium|high",
+  "response": "your empathetic message here"
 }
 
-Emotion options: happy, sad, anxious, stressed, neutral
-Risk level options: low, medium, high
-            `
+DO NOT include any extra text.
+DO NOT explain.
+Only valid JSON.
+`
           },
           { role: "user", content: message }
         ],
@@ -39,12 +40,30 @@ Risk level options: low, medium, high
     });
 
     const data = await response.json();
-    const parsed = JSON.parse(data.choices[0].message.content);
+
+    const rawContent = data.choices?.[0]?.message?.content;
+
+    if (!rawContent) {
+      return res.status(500).json({ error: "Invalid AI response" });
+    }
+
+    // Try parsing JSON safely
+    let parsed;
+    try {
+      parsed = JSON.parse(rawContent);
+    } catch (err) {
+      // If AI sends invalid JSON, fallback safely
+      parsed = {
+        emotion: "neutral",
+        risk_level: "low",
+        response: rawContent
+      };
+    }
 
     return res.status(200).json(parsed);
 
   } catch (error) {
-    console.error(error);
+    console.error("API Error:", error);
     return res.status(500).json({ error: "AI request failed" });
   }
 }
