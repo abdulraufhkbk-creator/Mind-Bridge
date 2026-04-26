@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NeuralMinds – AI Mental Health Support</title>
+  <meta name="description" content="NeuralMinds: AI-Driven Mental Health Support & Early Emotional Distress Detection. Anonymous, compassionate, always available." />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Landing-specific styles ── */
+
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 100px 24px 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-inner {
+      max-width: 820px;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(108,99,255,0.15);
+      border: 1px solid rgba(108,99,255,0.35);
+      border-radius: 50px;
+      padding: 7px 18px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent-purple);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      animation: heroFadeDown 0.8s ease forwards;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      animation: heroFadeUp 0.9s ease 0.1s both;
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.18rem);
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 620px;
+      margin: 0 auto 40px;
+      animation: heroFadeUp 0.9s ease 0.25s both;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: heroFadeUp 0.9s ease 0.4s both;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      margin-top: 64px;
+      flex-wrap: wrap;
+      animation: heroFadeUp 0.9s ease 0.55s both;
+    }
+
+    .hero-stat {
+      text-align: center;
+    }
+
+    .hero-stat-num {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff, var(--accent-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .hero-stat-divider {
+      width: 1px;
+      height: 40px;
+      background: var(--glass-border);
+      margin: auto 0;
+    }
+
+    @keyframes heroFadeDown {
+      from { opacity:0; transform:translateY(-16px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    @keyframes heroFadeUp {
+      from { opacity:0; transform:translateY(24px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      animation: heroFadeUp 1s ease 1s both;
+    }
+
+    .scroll-indicator .arrow {
+      width: 20px;
+      height: 20px;
+      border-right: 2px solid var(--text-muted);
+      border-bottom: 2px solid var(--text-muted);
+      transform: rotate(45deg);
+      animation: arrowBounce 1.8s ease-in-out infinite;
+    }
+
+    @keyframes arrowBounce {
+      0%, 100% { transform: rotate(45deg) translateY(0); }
+      50%       { transform: rotate(45deg) translateY(6px); }
+    }
+
+    /* Features Section */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      padding: 32px 28px;
+    }
+
+    .feature-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .feature-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+
+    .feature-desc {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    /* How It Works */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+      position: relative;
+    }
+
+    .step-card {
+      padding: 28px 24px;
+      text-align: center;
+    }
+
+    .step-number {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--btn-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin: 0 auto 16px;
+      box-shadow: 0 0 24px rgba(108,99,255,0.45);
+    }
+
+    .step-title {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .step-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Testimonials */
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .testimonial-card {
+      padding: 28px;
+    }
+
+    .testimonial-quote {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .author-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+    }
+
+    .author-name {
+      font-weight: 600;
+      font-size: 0.88rem;
+    }
+
+    .author-role {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* CTA Section */
+    .cta-section {
+      text-align: center;
+      padding: 80px 40px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-card {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 60px 40px;
+      border-radius: var(--radius-xl);
+      background: linear-gradient(135deg, rgba(108,99,255,0.15), rgba(167,139,250,0.08));
+      border: 1px solid rgba(108,99,255,0.3);
+      backdrop-filter: blur(20px);
+    }
+
+    .crisis-banner {
+      background: rgba(248,113,113,0.1);
+      border: 1px solid rgba(248,113,113,0.25);
+      border-radius: var(--radius-md);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 40px 0;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .crisis-banner-icon {
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .crisis-banner-text {
+      font-size: 0.88rem;
+      color: rgba(248,113,113,0.9);
+      line-height: 1.5;
+    }
+
+    .crisis-banner-text strong {
+      color: #f87171;
+    }
+
+    /* Section header */
+    .section-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .section-header h2 {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .section-header p {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      max-width: 560px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* Safety note */
+    .safety-note {
+      background: rgba(167,139,250,0.08);
+      border-left: 3px solid var(--accent-purple);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 14px 20px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      .hero-stats {
+        gap: 24px;
+      }
+      .hero-stat-divider {
+        width: 40px;
+        height: 1px;
+        margin: 0;
+      }
+      .cta-card {
+        padding: 40px 24px;
+      }
+      .cta-section {
+        padding: 60px 20px;
+      }
+      .crisis-banner {
+        margin: 0 20px;
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb-mid"></div>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon">🧠</div>
+      <span class="nav-logo-text">NeuralMinds</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="chat.html">Chat</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="chat.html" class="nav-cta">Start Chat →</a></li>
+    </ul>
+    <div class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">
+        <span>✨</span> AI-Powered Mental Wellness
+      </div>
+
+      <h1 class="hero-title">
+        <span class="gradient-text">NeuralMinds</span><br />
+        AI Mental Health Support
+      </h1>
+
+      <p class="hero-sub">
+        Millions struggle in silence. NeuralMinds provides an empathetic, always-available AI companion
+        for early emotional distress detection, mood tracking, and confidential mental wellness support —
+        no appointments, no stigma.
+      </p>
+
+      <div class="hero-cta-group">
+        <a href="chat.html" class="btn btn-primary btn-lg">
+          💬 Start Free Chat
+        </a>
+        <a href="dashboard.html" class="btn btn-secondary btn-lg">
+          📊 View Dashboard
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-num">24/7</div>
+          <div class="hero-stat-label">Always Available</div>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">100%</div>
+          <div class="hero-stat-label">Anonymous Mode</div>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">3-Level</div>
+          <div class="hero-stat-label">Risk Detection</div>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">Free</div>
+          <div class="hero-stat-label">No Sign-Up Needed</div>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <span>Scroll</span>
+      <div class="arrow"></div>
+    </div>
+  </section>
+
+  <!-- Crisis Banner -->
+  <div class="crisis-banner">
+    <div class="crisis-banner-icon">🚨</div>
+    <div class="crisis-banner-text">
+      <strong>If you're in immediate danger:</strong> Call or text <strong>988</strong> (Suicide & Crisis Lifeline, US) · UK: <strong>116 123</strong> (Samaritans) · International: <a href="https://www.befrienders.org" style="color:#f87171;" target="_blank">befrienders.org</a>
+    </div>
+  </div>
+
+  <div style="margin-top: 48px;"></div>
+
+  <!-- Features Section -->
+  <section class="section">
+    <div class="section-header reveal">
+      <div class="badge badge-purple" style="margin-bottom:16px;">Core Features</div>
+      <h2>Built for your <span class="gradient-text">mental well-being</span></h2>
+      <p>Every feature is thoughtfully designed to help you understand, manage, and improve your emotional health.</p>
+    </div>
+
+    <div class="features-grid">
+      <!-- Card 1 -->
+      <div class="glass-card feature-card reveal reveal-delay-1">
+        <div class="feature-icon" style="background:linear-gradient(135deg,rgba(108,99,255,0.3),rgba(108,99,255,0.1));">
+          🎭
+        </div>
+        <div class="feature-title">Emotion Detection</div>
+        <div class="feature-desc">
+          Our AI analyzes your language patterns in real-time to identify emotional states including anxiety, sadness, anger, and hope — providing tailored empathetic responses.
+        </div>
+        <div style="margin-top:20px;">
+          <span class="badge badge-purple">NLP-Powered</span>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="glass-card feature-card reveal reveal-delay-2">
+        <div class="feature-icon" style="background:linear-gradient(135deg,rgba(248,113,113,0.25),rgba(248,113,113,0.08));">
+          ⚠️
+        </div>
+        <div class="feature-title">Risk Assessment</div>
+        <div class="feature-desc">
+          3-tier risk monitoring (Low · Medium · High) flags early warning signs of distress and escalates support with crisis resources when elevated risk is detected.
+        </div>
+        <div style="margin-top:20px;">
+          <span class="badge badge-red">3-Level Detection</span>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="glass-card feature-card reveal reveal-delay-3">
+        <div class="feature-icon" style="background:linear-gradient(135deg,rgba(103,232,249,0.25),rgba(103,232,249,0.08));">
+          🕵️
+        </div>
+        <div class="feature-title">Anonymous Mode</div>
+        <div class="feature-desc">
+          Use NeuralMinds without sharing any personal information. Toggle anonymous mode to strip all identifiers — your privacy is paramount, not optional.
+        </div>
+        <div style="margin-top:20px;">
+          <span class="badge badge-purple" style="background:rgba(103,232,249,0.1);border-color:rgba(103,232,249,0.3);color:#67e8f9;">Zero Tracking</span>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="glass-card feature-card reveal reveal-delay-4">
+        <div class="feature-icon" style="background:linear-gradient(135deg,rgba(52,211,153,0.25),rgba(52,211,153,0.08));">
+          📈
+        </div>
+        <div class="feature-title">Mood Tracking</div>
+        <div class="feature-desc">
+          Log your daily mood and visualize emotional patterns over time. Weekly charts reveal trends that help you and your support network understand your mental health journey.
+        </div>
+        <div style="margin-top:20px;">
+          <span class="badge badge-green">Weekly Insights</span>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="glass-card feature-card reveal reveal-delay-5">
+        <div class="feature-icon" style="background:linear-gradient(135deg,rgba(251,191,36,0.25),rgba(251,191,36,0.08));">
+          🧘
+        </div>
+        <div class="feature-title">Guided Support</div>
+        <div class="feature-desc">
+          Receive contextual coping strategies, breathing exercises, grounding techniques, and compassionate guidance — all personalized to your current emotional state.
+        </div>
+        <div style="margin-top:20px;">
+          <span class="badge badge-yellow">Evidence-Based</span>
+        </div>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="glass-card feature-card reveal reveal-delay-6">
+        <div class="feature-icon" style="background:linear-gradient(135deg,rgba(167,139,250,0.3),rgba(167,139,250,0.08));">
+          🔒
+        </div>
+        <div class="feature-title">Private & Secure</div>
+        <div class="feature-desc">
+          All data stays in your browser's local storage. No account needed, no server uploads, no third-party sharing. Your conversations remain completely on your device.
+        </div>
+        <div style="margin-top:20px;">
+          <span class="badge badge-purple">Local Storage Only</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- How It Works -->
+  <section class="section">
+    <div class="section-header reveal">
+      <div class="badge badge-purple" style="margin-bottom:16px;">How It Works</div>
+      <h2>Simple. Private. <span class="gradient-text-warm">Compassionate.</span></h2>
+      <p>Get started in seconds — no signup, no downloads, no barriers to the support you deserve.</p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="glass-card step-card reveal reveal-delay-1">
+        <div class="step-number">1</div>
+        <div class="step-title">Open the Chat</div>
+        <div class="step-desc">Click "Start Chat" and you're immediately connected to your AI companion. No registration required.</div>
+      </div>
+      <div class="glass-card step-card reveal reveal-delay-2">
+        <div class="step-number">2</div>
+        <div class="step-title">Share Freely</div>
+        <div class="step-desc">Talk about what's on your mind. Our AI listens without judgment, responding with empathy and personalized support.</div>
+      </div>
+      <div class="glass-card step-card reveal reveal-delay-3">
+        <div class="step-number">3</div>
+        <div class="step-title">Get Insights</div>
+        <div class="step-desc">The AI monitors emotional patterns and risk levels, offering appropriate coping strategies and crisis resources when needed.</div>
+      </div>
+      <div class="glass-card step-card reveal reveal-delay-4">
+        <div class="step-number">4</div>
+        <div class="step-title">Track Progress</div>
+        <div class="step-desc">Visit your Dashboard to see mood trends, emotional summaries, and risk scores visualized over time.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Testimonials -->
+  <section class="section">
+    <div class="section-header reveal">
+      <div class="badge badge-purple" style="margin-bottom:16px;">Stories</div>
+      <h2>Real impact, <span class="gradient-text">real voices</span></h2>
+      <p>Hear from people who've found comfort and clarity with NeuralMinds.</p>
+    </div>
+
+    <div class="testimonials-grid">
+      <div class="glass-card testimonial-card reveal reveal-delay-1">
+        <div class="testimonial-quote">
+          "I was skeptical at first, but NeuralMinds genuinely felt like talking to someone who cared. The risk badge turning yellow made me realize I needed to seek professional help — and I did."
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar">👩</div>
+          <div>
+            <div class="author-name">Sarah K.</div>
+            <div class="author-role">Graduate Student</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card testimonial-card reveal reveal-delay-2">
+        <div class="testimonial-quote">
+          "The anonymous mode was everything for me. I could finally talk about things I'd never say out loud. This app helped me break the silence on my anxiety."
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar">👨</div>
+          <div>
+            <div class="author-name">Marcus T.</div>
+            <div class="author-role">Software Engineer</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card testimonial-card reveal reveal-delay-3">
+        <div class="testimonial-quote">
+          "The weekly mood chart opened my eyes to patterns I never noticed — I consistently felt lowest on Wednesdays. Small insight, massive impact on my self-awareness."
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar">👩</div>
+          <div>
+            <div class="author-name">Priya M.</div>
+            <div class="author-role">Healthcare Worker</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Safety Note -->
+  <section class="section section-sm">
+    <div class="safety-note reveal">
+      <strong>⚕️ Important Disclaimer:</strong> NeuralMinds is an AI-powered support tool and is <strong>not</strong> a substitute for professional mental health care, therapy, or medical advice. If you are experiencing a mental health crisis, please contact a qualified professional or emergency services immediately. For crisis support: <strong>988</strong> (US) · <strong>116 123</strong> (UK Samaritans) · <strong>1-800-784-2433</strong> (Canada).
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <div class="cta-section">
+    <div class="glass-card cta-card reveal">
+      <div class="badge badge-purple" style="margin-bottom:20px;">Get Started Today</div>
+      <h2 style="font-size:clamp(1.6rem,4vw,2.4rem); font-weight:700; margin-bottom:16px;">
+        Your mental health journey<br />begins with one <span class="gradient-text">conversation</span>
+      </h2>
+      <p style="color:var(--text-secondary); margin-bottom:36px; font-size:0.97rem; line-height:1.7; max-width:480px; margin-left:auto; margin-right:auto;">
+        No sign-up. No cost. No judgment. Just a safe space to express yourself and begin understanding your emotional well-being.
+      </p>
+      <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+        <a href="chat.html" class="btn btn-primary btn-lg">
+          💬 Begin Your Journey
+        </a>
+        <a href="dashboard.html" class="btn btn-ghost btn-lg">
+          📊 Explore Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:12px;">
+      <div style="width:28px; height:28px; border-radius:8px; background:var(--btn-primary); display:flex; align-items:center; justify-content:center; font-size:14px;">🧠</div>
+      <span style="font-family:var(--font-display); font-weight:600; color:var(--text-secondary);">NeuralMinds</span>
+    </div>
+    <p style="margin-bottom:8px;">AI-Driven Mental Health Support & Early Emotional Distress Detection</p>
+    <p>
+      <a href="chat.html">Chat</a> &nbsp;·&nbsp;
+      <a href="dashboard.html">Dashboard</a> &nbsp;·&nbsp;
+      <span>Not a medical service · For support only</span>
+    </p>
+    <p style="margin-top:12px; font-size:0.76rem; color:var(--text-muted);">© 2025 NeuralMinds · Built with ❤️ for mental wellness</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
