@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard – NeuralMinds</title>
+  <meta name="description" content="Your NeuralMinds mental health dashboard. Track mood, view emotional summaries, and monitor your wellness journey." />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Dashboard Specific ── */
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 20px;
+    }
+
+    /* Column spans */
+    .col-12 { grid-column: span 12; }
+    .col-8  { grid-column: span 8; }
+    .col-4  { grid-column: span 4; }
+    .col-6  { grid-column: span 6; }
+    .col-3  { grid-column: span 3; }
+
+    @media (max-width: 1024px) {
+      .col-8  { grid-column: span 12; }
+      .col-4  { grid-column: span 12; }
+    }
+
+    @media (max-width: 768px) {
+      .col-6  { grid-column: span 12; }
+      .col-3  { grid-column: span 6; }
+    }
+
+    @media (max-width: 480px) {
+      .col-3  { grid-column: span 12; }
+    }
+
+    /* Dashboard card */
+    .dash-card {
+      padding: 24px;
+      border-radius: var(--radius-lg);
+    }
+
+    .dash-card-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Stat cards */
+    .stat-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stat-card .stat-icon {
+      font-size: 1.6rem;
+      margin-bottom: 4px;
+    }
+
+    .stat-trend {
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .trend-up   { color: #34d399; }
+    .trend-down { color: #f87171; }
+    .trend-flat { color: var(--text-muted); }
+
+    /* Canvas chart */
+    #mood-canvas {
+      width: 100%;
+      height: 200px;
+      display: block;
+    }
+
+    /* Day labels below chart */
+    .chart-days {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+    }
+
+    .chart-day-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+      flex: 1;
+    }
+
+    /* Emotion tags */
+    .emotion-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      cursor: default;
+      transition: var(--transition);
+    }
+
+    .emotion-tag:hover {
+      background: rgba(108,99,255,0.12);
+      border-color: rgba(108,99,255,0.35);
+    }
+
+    /* Risk gauge */
+    .risk-gauge-wrap {
+      position: relative;
+      width: 140px;
+      height: 80px;
+      margin: 0 auto 16px;
+    }
+
+    .risk-gauge-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .risk-score-center {
+      text-align: center;
+    }
+
+    /* Weekly summary rows */
+    .summary-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .summary-row:last-child { border-bottom: none; }
+
+    .summary-day {
+      width: 36px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .summary-bar-track {
+      flex: 1;
+      height: 6px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 50px;
+      overflow: hidden;
+    }
+
+    .summary-bar-fill {
+      height: 100%;
+      border-radius: 50px;
+      transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .summary-score {
+      width: 28px;
+      text-align: right;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .summary-mood {
+      font-size: 1rem;
+    }
+
+    /* Insights */
+    .insight-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .insight-item:last-child { border-bottom: none; }
+
+    .insight-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .insight-text {
+      font-size: 0.87rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    .insight-time {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    /* Goals */
+    .goal-item {
+      margin-bottom: 16px;
+    }
+
+    .goal-item:last-child { margin-bottom: 0; }
+
+    .goal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .goal-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .goal-pct {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent-purple);
+    }
+
+    /* Dashboard header */
+    .dash-header {
+      margin-bottom: 32px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .dash-header-left h1 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .dash-header-left p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    /* Mood log success flash */
+    .mood-saved-msg {
+      font-size: 0.78rem;
+      color: #34d399;
+      margin-top: 8px;
+      opacity: 0;
+      transition: opacity 0.4s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .mood-saved-msg.show { opacity: 1; }
+
+    /* Responsive dashboard */
+    @media (max-width: 600px) {
+      .dash-header {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb-mid"></div>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon">🧠</div>
+      <span class="nav-logo-text">NeuralMinds</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="chat.html">Chat</a></li>
+      <li><a href="dashboard.html" class="active">Dashboard</a></li>
+      <li><a href="chat.html" class="nav-cta">Open Chat →</a></li>
+    </ul>
+    <div class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
+
+  <div class="page-wrapper">
+    <div class="section">
+
+      <!-- Dashboard Header -->
+      <div class="dash-header reveal">
+        <div class="dash-header-left">
+          <div class="badge badge-purple" style="margin-bottom:10px;">Mental Wellness Dashboard</div>
+          <h1>Your <span class="gradient-text">Emotional Journey</span></h1>
+          <p>Tracking your mood, risk levels, and mental wellness patterns over time.</p>
+        </div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+          <a href="chat.html" class="btn btn-primary">
+            💬 Continue Chat
+          </a>
+          <button id="refresh-btn" class="btn btn-secondary">
+            🔄 Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Dashboard Grid -->
+      <div class="dashboard-grid">
+
+        <!-- ── Stat Cards Row ── -->
+
+        <!-- Sessions -->
+        <div class="glass-card dash-card col-3 reveal reveal-delay-1">
+          <div class="dash-card-title">💬 Sessions</div>
+          <div class="stat-card">
+            <div class="stat-icon">💬</div>
+            <div class="stat-number gradient-text" data-count="7" data-suffix="">7</div>
+            <div class="stat-label">Total Sessions</div>
+            <div class="stat-trend trend-up">↑ +2 this week</div>
+          </div>
+        </div>
+
+        <!-- Mood Score -->
+        <div class="glass-card dash-card col-3 reveal reveal-delay-2">
+          <div class="dash-card-title">😊 Avg Mood</div>
+          <div class="stat-card">
+            <div class="stat-icon">😊</div>
+            <div class="stat-number gradient-text" data-count="6" data-suffix="/10">6/10</div>
+            <div class="stat-label">Weekly Average</div>
+            <div class="stat-trend trend-up">↑ +0.8 vs last week</div>
+          </div>
+        </div>
+
+        <!-- Streak -->
+        <div class="glass-card dash-card col-3 reveal reveal-delay-3">
+          <div class="dash-card-title">🔥 Streak</div>
+          <div class="stat-card">
+            <div class="stat-icon">🔥</div>
+            <div class="stat-number gradient-text" data-count="5" data-suffix=" days">5 days</div>
+            <div class="stat-label">Check-in Streak</div>
+            <div class="stat-trend trend-up">↑ Personal best!</div>
+          </div>
+        </div>
+
+        <!-- Risk Level -->
+        <div class="glass-card dash-card col-3 reveal reveal-delay-4">
+          <div class="dash-card-title">⚠️ Risk Level</div>
+          <div class="stat-card">
+            <div class="stat-icon">🛡️</div>
+            <div class="stat-number" id="risk-score-val" data-count="0" data-suffix="">0</div>
+            <div class="stat-label">Risk Score /100</div>
+            <div style="margin-top:8px;">
+              <span id="risk-label" class="badge badge-purple">No Data</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Mood Chart (wide) ── -->
+        <div class="glass-card dash-card col-8 reveal">
+          <div class="dash-card-title">📈 Weekly Mood Trend</div>
+          <canvas id="mood-canvas"></canvas>
+          <div style="display:flex; justify-content:space-between; margin-top:12px;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <div style="width:12px; height:3px; border-radius:2px; background:#6c63ff;"></div>
+              <span style="font-size:0.75rem; color:var(--text-muted);">Mood Score (0–10)</span>
+            </div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">This Week</div>
+          </div>
+        </div>
+
+        <!-- ── Risk Score Card ── -->
+        <div class="glass-card dash-card col-4 reveal reveal-delay-2">
+          <div class="dash-card-title">🛡️ Risk Assessment</div>
+
+          <!-- Gauge SVG -->
+          <div class="risk-gauge-wrap">
+            <svg class="risk-gauge-svg" viewBox="0 0 140 80" xmlns="http://www.w3.org/2000/svg">
+              <!-- Background arc -->
+              <path d="M 10 75 A 60 60 0 0 1 130 75"
+                    fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="10"
+                    stroke-linecap="round"/>
+              <!-- Colored arc: green → yellow → red -->
+              <path d="M 10 75 A 60 60 0 0 1 130 75"
+                    fill="none"
+                    stroke="url(#gaugeGrad)"
+                    stroke-width="10"
+                    stroke-linecap="round"
+                    stroke-dasharray="188"
+                    id="gauge-arc"
+                    stroke-dashoffset="188"/>
+              <!-- Gradient def -->
+              <defs>
+                <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%"   stop-color="#34d399"/>
+                  <stop offset="50%"  stop-color="#fbbf24"/>
+                  <stop offset="100%" stop-color="#f87171"/>
+                </linearGradient>
+              </defs>
+              <!-- Needle -->
+              <line id="gauge-needle"
+                    x1="70" y1="75" x2="70" y2="26"
+                    stroke="#fff" stroke-width="2"
+                    stroke-linecap="round"
+                    transform-origin="70 75"
+                    transform="rotate(-90, 70, 75)"/>
+              <!-- Center dot -->
+              <circle cx="70" cy="75" r="5" fill="#6c63ff"/>
+            </svg>
+          </div>
+
+          <div class="risk-score-center">
+            <div class="stat-number gradient-text" id="risk-gauge-num">—</div>
+            <div class="stat-label">Current Risk Score</div>
+            <div style="margin-top:10px;" id="risk-gauge-label">
+              <span class="badge badge-purple">Awaiting Data</span>
+            </div>
+          </div>
+
+          <div style="margin-top:20px;">
+            <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-muted); margin-bottom:6px;">
+              <span>Low</span><span>Medium</span><span>High</span>
+            </div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" id="risk-progress"
+                   data-width="0%"
+                   style="background:linear-gradient(90deg,#34d399,#fbbf24,#f87171);">
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:16px; font-size:0.78rem; color:var(--text-muted); line-height:1.5;">
+            Risk score is calculated from your chat session keywords and emotional patterns detected by NeuralMinds AI.
+          </div>
+        </div>
+
+        <!-- ── Weekly Summary ── -->
+        <div class="glass-card dash-card col-4 reveal reveal-delay-1">
+          <div class="dash-card-title">📅 Daily Mood Log</div>
+
+          <div id="weekly-summary">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- ── Mood Logger ── -->
+        <div class="glass-card dash-card col-4 reveal reveal-delay-2">
+          <div class="dash-card-title">🎯 Log Today's Mood</div>
+          <p style="font-size:0.83rem; color:var(--text-muted); margin-bottom:16px; line-height:1.5;">
+            How are you feeling right now? Select an emoji to log your mood.
+          </p>
+
+          <div class="mood-picker">
+            <button class="mood-btn" data-mood="amazing" data-label="Amazing">
+              <span class="mood-emoji">🤩</span>
+              <span>Amazing</span>
+            </button>
+            <button class="mood-btn" data-mood="happy" data-label="Happy">
+              <span class="mood-emoji">😊</span>
+              <span>Happy</span>
+            </button>
+            <button class="mood-btn" data-mood="neutral" data-label="Neutral">
+              <span class="mood-emoji">😐</span>
+              <span>Neutral</span>
+            </button>
+            <button class="mood-btn" data-mood="sad" data-label="Sad">
+              <span class="mood-emoji">😢</span>
+              <span>Sad</span>
+            </button>
+            <button class="mood-btn" data-mood="anxious" data-label="Anxious">
+              <span class="mood-emoji">😰</span>
+              <span>Anxious</span>
+            </button>
+            <button class="mood-btn" data-mood="angry" data-label="Angry">
+              <span class="mood-emoji">😠</span>
+              <span>Angry</span>
+            </button>
+          </div>
+
+          <div class="mood-saved-msg" id="mood-saved">
+            ✅ Mood logged successfully!
+          </div>
+
+          <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--glass-border);">
+            <div class="dash-card-title">📝 Today's Note</div>
+            <textarea
+              id="mood-note"
+              placeholder="Add a short note about your day… (optional)"
+              style="
+                width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--glass-border);
+                border-radius:10px; color:var(--text-primary); font-family:var(--font-main);
+                font-size:0.85rem; padding:10px 14px; resize:none; outline:none;
+                min-height:64px; transition:var(--transition);
+              "
+            ></textarea>
+            <button id="save-note-btn" class="btn btn-primary btn-sm" style="margin-top:8px; width:100%;">
+              💾 Save Note
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Emotional Insights ── -->
+        <div class="glass-card dash-card col-4 reveal reveal-delay-3">
+          <div class="dash-card-title">🔍 AI Insights</div>
+
+          <div class="insight-item">
+            <div class="insight-icon" style="background:rgba(52,211,153,0.12); border:1px solid rgba(52,211,153,0.2);">✅</div>
+            <div>
+              <div class="insight-text">Your mood scores show improvement on weekends. Consider applying weekend strategies to weekday routines.</div>
+              <div class="insight-time">Detected this week</div>
+            </div>
+          </div>
+
+          <div class="insight-item">
+            <div class="insight-icon" style="background:rgba(251,191,36,0.12); border:1px solid rgba(251,191,36,0.2);">⚡</div>
+            <div>
+              <div class="insight-text">Mid-week scores (Wed) consistently dip. Scheduling a self-care activity on Wednesday may help break this pattern.</div>
+              <div class="insight-time">3-week pattern</div>
+            </div>
+          </div>
+
+          <div class="insight-item">
+            <div class="insight-icon" style="background:rgba(108,99,255,0.12); border:1px solid rgba(108,99,255,0.2);">🧠</div>
+            <div>
+              <div class="insight-text">Your chat messages frequently mention "work" and "stress". Exploring stress management techniques could be beneficial.</div>
+              <div class="insight-time">Based on chat analysis</div>
+            </div>
+          </div>
+
+          <div class="insight-item">
+            <div class="insight-icon" style="background:rgba(103,232,249,0.12); border:1px solid rgba(103,232,249,0.2);">💬</div>
+            <div>
+              <div class="insight-text">You've maintained a 5-day check-in streak — this consistency is linked to improved self-awareness outcomes.</div>
+              <div class="insight-time">Ongoing</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Emotions Detected ── -->
+        <div class="glass-card dash-card col-6 reveal">
+          <div class="dash-card-title">🎭 Detected Emotion Themes</div>
+          <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:16px;">
+            Emotional themes identified from your conversations this week:
+          </p>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            <span class="emotion-tag" style="border-color:rgba(52,211,153,0.3); color:#34d399;">😌 Calm</span>
+            <span class="emotion-tag" style="border-color:rgba(251,191,36,0.3); color:#fbbf24;">😟 Worry</span>
+            <span class="emotion-tag" style="border-color:rgba(248,113,113,0.3); color:#f87171;">😰 Anxiety</span>
+            <span class="emotion-tag" style="border-color:rgba(108,99,255,0.3); color:#a78bfa;">🤔 Reflection</span>
+            <span class="emotion-tag" style="border-color:rgba(103,232,249,0.3); color:#67e8f9;">😤 Frustration</span>
+            <span class="emotion-tag" style="border-color:rgba(52,211,153,0.3); color:#34d399;">🙂 Hopeful</span>
+            <span class="emotion-tag" style="border-color:rgba(167,139,250,0.3); color:#c4b5fd;">😔 Sadness</span>
+            <span class="emotion-tag" style="border-color:rgba(251,191,36,0.3); color:#fbbf24;">😊 Gratitude</span>
+          </div>
+
+          <div style="margin-top:24px;">
+            <div class="dash-card-title">📊 Emotion Frequency</div>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:8px;">
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:0.78rem; color:var(--text-secondary); margin-bottom:5px;">
+                  <span>😟 Worry / Anxiety</span><span>68%</span>
+                </div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar-fill" data-width="68%" style="background:linear-gradient(90deg,#fbbf24,#f87171);"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:0.78rem; color:var(--text-secondary); margin-bottom:5px;">
+                  <span>😌 Calm / Hopeful</span><span>45%</span>
+                </div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar-fill" data-width="45%" style="background:linear-gradient(90deg,#34d399,#67e8f9);"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:0.78rem; color:var(--text-secondary); margin-bottom:5px;">
+                  <span>🤔 Reflection / Clarity</span><span>32%</span>
+                </div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar-fill" data-width="32%" style="background:linear-gradient(90deg,#6c63ff,#a78bfa);"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:0.78rem; color:var(--text-secondary); margin-bottom:5px;">
+                  <span>😔 Sadness / Low Mood</span><span>28%</span>
+                </div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar-fill" data-width="28%" style="background:linear-gradient(90deg,#818cf8,#a78bfa);"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Wellness Goals ── -->
+        <div class="glass-card dash-card col-6 reveal reveal-delay-2">
+          <div class="dash-card-title">🎯 Wellness Goals</div>
+
+          <div class="goal-item">
+            <div class="goal-header">
+              <span class="goal-label">😴 Sleep Quality</span>
+              <span class="goal-pct">72%</span>
+            </div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" data-width="72%"
+                   style="background:linear-gradient(90deg,#6c63ff,#a78bfa);"></div>
+            </div>
+          </div>
+
+          <div class="goal-item">
+            <div class="goal-header">
+              <span class="goal-label">🏃 Physical Activity</span>
+              <span class="goal-pct">55%</span>
+            </div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" data-width="55%"
+                   style="background:linear-gradient(90deg,#34d399,#67e8f9);"></div>
+            </div>
+          </div>
+
+          <div class="goal-item">
+            <div class="goal-header">
+              <span class="goal-label">🧘 Mindfulness Practice</span>
+              <span class="goal-pct">40%</span>
+            </div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" data-width="40%"
+                   style="background:linear-gradient(90deg,#fbbf24,#f97316);"></div>
+            </div>
+          </div>
+
+          <div class="goal-item">
+            <div class="goal-header">
+              <span class="goal-label">👥 Social Connection</span>
+              <span class="goal-pct">60%</span>
+            </div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" data-width="60%"
+                   style="background:linear-gradient(90deg,#f472b6,#a78bfa);"></div>
+            </div>
+          </div>
+
+          <div class="goal-item">
+            <div class="goal-header">
+              <span class="goal-label">💧 Hydration & Nutrition</span>
+              <span class="goal-pct">80%</span>
+            </div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" data-width="80%"
+                   style="background:linear-gradient(90deg,#67e8f9,#34d399);"></div>
+            </div>
+          </div>
+
+          <div class="goal-item">
+            <div class="goal-header">
+              <span class="goal-label">📔 Journaling Streak</span>
+              <span class="goal-pct">5/7 days</span>
+            </div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" data-width="71%"
+                   style="background:linear-gradient(90deg,#6c63ff,#67e8f9);"></div>
+            </div>
+          </div>
+
+          <!-- Recommendations -->
+          <div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--glass-border);">
+            <div class="dash-card-title">💡 Recommendations</div>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+              <div style="display:flex; gap:8px; align-items:flex-start;">
+                <span style="font-size:1rem; flex-shrink:0;">🌬️</span>
+                <span style="font-size:0.82rem; color:var(--text-secondary); line-height:1.5;">
+                  Try 4-7-8 breathing: inhale 4s, hold 7s, exhale 8s — great for acute anxiety.
+                </span>
+              </div>
+              <div style="display:flex; gap:8px; align-items:flex-start;">
+                <span style="font-size:1rem; flex-shrink:0;">🌳</span>
+                <span style="font-size:0.82rem; color:var(--text-secondary); line-height:1.5;">
+                  A 10-minute outdoor walk has been shown to reduce cortisol levels significantly.
+                </span>
+              </div>
+              <div style="display:flex; gap:8px; align-items:flex-start;">
+                <span style="font-size:1rem; flex-shrink:0;">📵</span>
+                <span style="font-size:0.82rem; color:var(--text-secondary); line-height:1.5;">
+                  A 30-minute screen break before sleep can improve sleep quality by up to 30%.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Crisis Resources ── -->
+        <div class="glass-card dash-card col-12 reveal" style="background:rgba(248,113,113,0.05); border-color:rgba(248,113,113,0.18);">
+          <div style="display:flex; flex-wrap:wrap; gap:24px; align-items:center; justify-content:space-between;">
+            <div>
+              <div class="dash-card-title" style="color:rgba(248,113,113,0.7);">🚨 Crisis & Support Resources</div>
+              <p style="font-size:0.85rem; color:rgba(248,113,113,0.7); line-height:1.6;">
+                If you're in immediate danger or experiencing a mental health crisis, please reach out immediately:
+              </p>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:12px;">
+              <div class="glass-card" style="padding:14px 20px; border-radius:var(--radius-md); border-color:rgba(248,113,113,0.25); text-align:center; min-width:120px;">
+                <div style="font-size:1.3rem; margin-bottom:4px;">📞</div>
+                <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:2px;">US Crisis Line</div>
+                <div style="font-weight:700; color:#f87171;">988</div>
+              </div>
+              <div class="glass-card" style="padding:14px 20px; border-radius:var(--radius-md); border-color:rgba(248,113,113,0.25); text-align:center; min-width:120px;">
+                <div style="font-size:1.3rem; margin-bottom:4px;">💬</div>
+                <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:2px;">Crisis Text</div>
+                <div style="font-weight:700; color:#f87171;">741741</div>
+              </div>
+              <div class="glass-card" style="padding:14px 20px; border-radius:var(--radius-md); border-color:rgba(248,113,113,0.25); text-align:center; min-width:120px;">
+                <div style="font-size:1.3rem; margin-bottom:4px;">🇬🇧</div>
+                <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:2px;">UK Samaritans</div>
+                <div style="font-weight:700; color:#f87171;">116 123</div>
+              </div>
+              <div class="glass-card" style="padding:14px 20px; border-radius:var(--radius-md); border-color:rgba(248,113,113,0.25); text-align:center; min-width:120px;">
+                <div style="font-size:1.3rem; margin-bottom:4px;">🌐</div>
+                <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:2px;">International</div>
+                <div style="font-weight:700; color:#f87171;">befrienders.org</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <!-- end grid -->
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:12px;">
+      <div style="width:28px; height:28px; border-radius:8px; background:var(--btn-primary); display:flex; align-items:center; justify-content:center; font-size:14px;">🧠</div>
+      <span style="font-family:var(--font-display); font-weight:600; color:var(--text-secondary);">NeuralMinds</span>
+    </div>
+    <p>AI-Driven Mental Health Support & Early Emotional Distress Detection</p>
+    <p style="margin-top:8px;">
+      <a href="index.html">Home</a> &nbsp;·&nbsp;
+      <a href="chat.html">Chat</a> &nbsp;·&nbsp;
+      <span>Not a medical service</span>
+    </p>
+    <p style="margin-top:12px; font-size:0.76rem; color:var(--text-muted);">© 2025 NeuralMinds · Built with ❤️ for mental wellness</p>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    // ── Weekly Summary Renderer ──────────────────────────
+    const weeklyData = [
+      { day:'Mon', score:5, mood:'😐', color:'#fbbf24' },
+      { day:'Tue', score:4, mood:'😔', color:'#f87171' },
+      { day:'Wed', score:6, mood:'🙂', color:'#34d399' },
+      { day:'Thu', score:3, mood:'😢', color:'#f87171' },
+      { day:'Fri', score:7, mood:'😊', color:'#34d399' },
+      { day:'Sat', score:8, mood:'😄', color:'#34d399' },
+      { day:'Sun', score:6, mood:'🙂', color:'#34d399' },
+    ];
+
+    function renderWeeklySummary() {
+      const container = document.getElementById('weekly-summary');
+      if (!container) return;
+      container.innerHTML = '';
+
+      weeklyData.forEach(d => {
+        const row = document.createElement('div');
+        row.className = 'summary-row';
+        row.innerHTML = `
+          <div class="summary-day">${d.day}</div>
+          <div class="summary-mood">${d.mood}</div>
+          <div class="summary-bar-track">
+            <div class="summary-bar-fill" data-width="${d.score * 10}%"
+                 style="background:${d.color}; width:0%;"></div>
+          </div>
+          <div class="summary-score">${d.score}</div>`;
+        container.appendChild(row);
+      });
+    }
+
+    // ── Risk Gauge Animation ──────────────────────────
+    function animateGauge(score) {
+      const arc    = document.getElementById('gauge-arc');
+      const needle = document.getElementById('gauge-needle');
+      const numEl  = document.getElementById('risk-gauge-num');
+      const label  = document.getElementById('risk-gauge-label');
+
+      if (!arc || !needle) return;
+
+      const pct    = Math.min(score, 100) / 100;
+      const total  = 188;
+      const offset = total * (1 - pct);
+
+      setTimeout(() => {
+        arc.style.transition = 'stroke-dashoffset 1.4s cubic-bezier(0.4,0,0.2,1)';
+        arc.setAttribute('stroke-dashoffset', offset);
+
+        // Needle: -90deg (min) to +90deg (max) = 180deg range
+        const angle = -90 + pct * 180;
+        needle.style.transition = 'transform 1.4s cubic-bezier(0.4,0,0.2,1)';
+        needle.setAttribute('transform', `rotate(${angle}, 70, 75)`);
+      }, 400);
+
+      if (numEl) numEl.textContent = score;
+
+      if (label) {
+        const riskLevel = score >= 70 ? 'high' : score >= 35 ? 'medium' : score > 0 ? 'low' : 'none';
+        const configs   = {
+          none:   { cls:'badge-purple', text:'No Data' },
+          low:    { cls:'badge-green',  text:'Low Risk' },
+          medium: { cls:'badge-yellow', text:'Moderate Risk' },
+          high:   { cls:'badge-red',    text:'High Risk' },
+        };
+        const cfg = configs[riskLevel];
+        label.innerHTML = `<span class="badge ${cfg.cls}"><span class="badge-dot"></span>${cfg.text}</span>`;
+      }
+    }
+
+    // ── Note Save ────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      renderWeeklySummary();
+
+      const savedNote = localStorage.getItem('neuralminds_note');
+      if (savedNote) {
+        const noteEl = document.getElementById('mood-note');
+        if (noteEl) noteEl.value = savedNote;
+      }
+
+      document.getElementById('save-note-btn')?.addEventListener('click', () => {
+        const note = document.getElementById('mood-note')?.value || '';
+        localStorage.setItem('neuralminds_note', note);
+        showToast('Note saved! 📝');
+      });
+
+      document.getElementById('refresh-btn')?.addEventListener('click', () => {
+        window.location.reload();
+      });
+
+      // Mood saved flash
+      const origMoodBtns = document.querySelectorAll('.mood-btn');
+      origMoodBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const msg = document.getElementById('mood-saved');
+          if (msg) {
+            msg.classList.add('show');
+            setTimeout(() => msg.classList.remove('show'), 2500);
+          }
+        });
+      });
+
+      // Read risk from localStorage
+      const savedRisk = localStorage.getItem('neuralminds_risk') || 'none';
+      const riskScore = { none:0, low:22, medium:55, high:88 }[savedRisk] || 0;
+
+      // Update risk score stat card
+      const scoreEl = document.getElementById('risk-score-val');
+      if (scoreEl) scoreEl.dataset.count = riskScore;
+
+      const labelEl = document.getElementById('risk-label');
+      if (labelEl) {
+        const labels = { none:'No Data', low:'Low Risk', medium:'Moderate Risk', high:'High Risk' };
+        const classes = { none:'badge-purple', low:'badge-green', medium:'badge-yellow', high:'badge-red' };
+        labelEl.textContent = labels[savedRisk];
+        labelEl.className   = `badge ${classes[savedRisk]}`;
+      }
+
+      // Gauge
+      animateGauge(riskScore);
+
+      // Note textarea focus style
+      const noteTA = document.getElementById('mood-note');
+      if (noteTA) {
+        noteTA.addEventListener('focus', () => noteTA.style.borderColor = 'rgba(108,99,255,0.5)');
+        noteTA.addEventListener('blur',  () => noteTA.style.borderColor = 'var(--glass-border)');
+      }
+    });
+  </script>
+</body>
+</html>
