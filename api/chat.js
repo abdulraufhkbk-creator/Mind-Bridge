@@ -1,3 +1,5 @@
+const fetch = require("node-fetch");
+
 module.exports = async function (req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -30,7 +32,7 @@ Respond ONLY in JSON format:
 
 Emotion options: happy, sad, anxious, stressed, neutral
 Risk level options: low, medium, high
-            `
+`
           },
           { role: "user", content: message }
         ],
@@ -48,7 +50,7 @@ Risk level options: low, medium, high
       parsed = {
         emotion: "neutral",
         risk_level: "low",
-        response: rawContent
+        response: rawContent || "I'm here for you."
       };
     }
 
