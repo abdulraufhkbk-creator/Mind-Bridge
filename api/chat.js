@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function (req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -20,18 +20,17 @@ export default async function handler(req, res) {
             content: `
 You are NeuralMinds, an empathetic mental health AI assistant.
 
-Respond strictly in JSON format like this:
+Respond ONLY in JSON format:
 
 {
-  "emotion": "happy|sad|anxious|stressed|neutral",
-  "risk_level": "low|medium|high",
-  "response": "your empathetic message here"
+  "emotion": "",
+  "risk_level": "",
+  "response": ""
 }
 
-DO NOT include any extra text.
-DO NOT explain.
-Only valid JSON.
-`
+Emotion options: happy, sad, anxious, stressed, neutral
+Risk level options: low, medium, high
+            `
           },
           { role: "user", content: message }
         ],
@@ -40,19 +39,12 @@ Only valid JSON.
     });
 
     const data = await response.json();
-
     const rawContent = data.choices?.[0]?.message?.content;
 
-    if (!rawContent) {
-      return res.status(500).json({ error: "Invalid AI response" });
-    }
-
-    // Try parsing JSON safely
     let parsed;
     try {
       parsed = JSON.parse(rawContent);
-    } catch (err) {
-      // If AI sends invalid JSON, fallback safely
+    } catch {
       parsed = {
         emotion: "neutral",
         risk_level: "low",
@@ -63,7 +55,7 @@ Only valid JSON.
     return res.status(200).json(parsed);
 
   } catch (error) {
-    console.error("API Error:", error);
+    console.error("Groq API Error:", error);
     return res.status(500).json({ error: "AI request failed" });
   }
-}
+};
