@@ -1,18 +1,14 @@
-/* ============================================
-   NeuralMinds - Main JavaScript
-   REAL AI Version (Groq Integrated)
-   ============================================ */
-
 'use strict';
 
-// ── CONFIG ─────────────────────────────────────────────
-const GROQ_API_KEY = "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";
+/* ============================================
+   NeuralMinds - Secure AI Version
+   ============================================ */
 
 const STORAGE_KEY = 'neuralminds_chat';
 const MOOD_KEY    = 'neuralminds_mood';
 const RISK_KEY    = 'neuralminds_risk';
 
-// ── Risk Keyword Safety Backup ─────────────────────────
+// Backup keyword safety override
 const RISK_KEYWORDS = {
   high: ['suicide','kill myself','end my life','want to die','self harm','hurt myself'],
   medium: ['depressed','anxiety','panic','overwhelmed','hopeless','alone','worthless'],
@@ -27,47 +23,17 @@ function getRiskLevel(text) {
   return null;
 }
 
-// ── AI CALL ────────────────────────────────────────────
+// Call backend API (SECURE)
 async function getAIResponse(userMessage) {
-  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+  const response = await fetch("/api/chat", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${GROQ_API_KEY}`
-    },
-    body: JSON.stringify({
-      model: "llama3-70b-8192",
-      messages: [
-        {
-          role: "system",
-          content: `
-You are NeuralMinds, an empathetic mental health AI assistant.
-
-Respond ONLY in JSON format:
-
-{
-  "emotion": "",
-  "risk_level": "",
-  "response": ""
-}
-
-Emotion options: happy, sad, anxious, stressed, neutral
-Risk level options: low, medium, high
-
-Be emotionally intelligent, supportive, and professional.
-          `
-        },
-        { role: "user", content: userMessage }
-      ],
-      temperature: 0.7
-    })
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: userMessage })
   });
 
-  const data = await response.json();
-  return JSON.parse(data.choices[0].message.content);
+  return await response.json();
 }
 
-// ── Storage ────────────────────────────────────────────
 function loadChatHistory() {
   return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 }
@@ -76,7 +42,6 @@ function saveChatHistory(history) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
 }
 
-// ── UI Helpers ─────────────────────────────────────────
 function buildBubble(text, sender) {
   const div = document.createElement("div");
   div.className = sender === "user" ? "user-msg" : "ai-msg";
@@ -110,7 +75,6 @@ function removeTyping() {
   if (el) el.remove();
 }
 
-// ── SEND MESSAGE ───────────────────────────────────────
 let chatHistory = loadChatHistory();
 
 async function sendMessage() {
@@ -122,7 +86,6 @@ async function sendMessage() {
 
   input.value = "";
 
-  // Save & Render User Message
   chatHistory.push({ sender: "user", text });
   saveChatHistory(chatHistory);
 
@@ -152,7 +115,6 @@ async function sendMessage() {
   }
 }
 
-// ── INIT ───────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
   const sendBtn = document.getElementById("send-btn");
   const input = document.getElementById("chat-input");
@@ -169,7 +131,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Render previous chat
   chatHistory.forEach(msg => {
     container.appendChild(buildBubble(msg.text, msg.sender));
   });
